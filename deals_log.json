@@ -4568,5 +4568,35 @@
     "discount": 90,
     "desirability": 5,
     "link": "https://www.ebay.com/itm/236635102976?_skw=%2899%2C100%29+%22EX+Crystal+Guardians%22+PSA&hash=item37188d1f00:g:QTUAAeSwzMJpj80p"
+  },
+  {
+    "timestamp": "2026-03-22T23:05:06.551232+00:00",
+    "card": "Rayquaza V Alt Art #194",
+    "grade": "PSA 9",
+    "price": 330.99,
+    "market": 600,
+    "discount": 44,
+    "desirability": 5,
+    "link": "https://www.ebay.com/itm/298151178195?_skw=%28189%2C192%2C180%2C194%2C209%29+%22Evolving+Skies%22+PSA&hash=item456b31efd3:g:vKUAAeSwmJBpwHTJ"
+  },
+  {
+    "timestamp": "2026-03-22T23:05:20.043621+00:00",
+    "card": "Arceus VSTAR GG70",
+    "grade": "PSA 10",
+    "price": 149.0,
+    "market": 400,
+    "discount": 62,
+    "desirability": 6,
+    "link": "https://www.ebay.com/itm/227268984630?_skw=%28GG44%2CGG69%2CGG70%29+%22Crown+Zenith%22+PSA&hash=item34ea497f36:i:227268984630"
+  },
+  {
+    "timestamp": "2026-03-22T23:05:27.976370+00:00",
+    "card": "Mewtwo 1st Edition Holo",
+    "grade": "PSA 10",
+    "price": 346.87,
+    "market": 10000,
+    "discount": 96,
+    "desirability": 6,
+    "link": "https://www.ebay.com/itm/377055646024?_skw=%284%2C2%2C15%2C10%2C1%29+%22Base+Set%22+PSA&hash=item57ca449148:g:uZ4AAeSwmJBpwHQ2"
   }
 ]
