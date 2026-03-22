@@ -255,24 +255,26 @@ def main():
             all_results.extend([(listing_type, item) for item in results])
             time.sleep(1)
         
-        # BONUS SEARCH: Alternate between misspelling and fresh grade
-        # Use card index to alternate strategy
+        # BONUS SEARCH: Only for TOP 5 cards per group (to stay within API budget)
+        # API Math: 23 cards x 2 = 46 primary + 5 x 1 = 5 bonus = 51 calls/scan
+        # 51 x 96 scans = 4,896 calls/day (98% of 5,000 limit - SAFE!)
         card_index = active_watchlist.index(card)
-        if card_index % 2 == 0:
-            # Even cards: Try misspelling variant
-            misspelled = generate_misspellings(query)
-            if misspelled:
-                print(f"  + Bonus: Misspelling search '{misspelled}'")
-                bonus_results = search_ebay(token, misspelled, max_api_price, is_auction=False)
-                all_results.extend([("BUY IT NOW [MISSPELLING]", item) for item in bonus_results])
+        if card_index < 5:  # Only first 5 cards get bonus search
+            if card_index % 2 == 0:
+                # Even cards: Try misspelling variant
+                misspelled = generate_misspellings(query)
+                if misspelled:
+                    print(f"  + Bonus: Misspelling search '{misspelled}'")
+                    bonus_results = search_ebay(token, misspelled, max_api_price, is_auction=False)
+                    all_results.extend([("BUY IT NOW [MISSPELLING]", item) for item in bonus_results])
+                    time.sleep(1)
+            else:
+                # Odd cards: Try fresh grade targeting
+                fresh_query = f"{query} just back PSA fresh grade"
+                print(f"  + Bonus: Fresh grade search")
+                bonus_results = search_ebay(token, fresh_query, max_api_price, is_auction=False)
+                all_results.extend([("BUY IT NOW [FRESH GRADE]", item) for item in bonus_results])
                 time.sleep(1)
-        else:
-            # Odd cards: Try fresh grade targeting
-            fresh_query = f"{query} just back PSA fresh grade"
-            print(f"  + Bonus: Fresh grade search")
-            bonus_results = search_ebay(token, fresh_query, max_api_price, is_auction=False)
-            all_results.extend([("BUY IT NOW [FRESH GRADE]", item) for item in bonus_results])
-            time.sleep(1)
         
         # Process all results from all query variants
         for listing_type, item in all_results:
