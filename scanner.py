@@ -119,20 +119,36 @@ def main():
         print(f"Error loading watchlist: {e}")
         return
     
-    # ROTATING GROUP LOGIC - Alternate between Group A and Group B every 15 min
-    # This allows monitoring 2x cards while staying under API limits
-    # Group A: :00, :30 | Group B: :15, :45
+    # ROTATING GROUP LOGIC - 4 Groups rotating every 15 min
+    # This allows monitoring 92 cards while staying under API limits
+    # Group A: :00 | Group B: :15 | Group C: :30 | Group D: :45
     current_minute = datetime.now(timezone.utc).minute
-    is_group_a = (current_minute % 30) <= 1
+    total_cards = len(watchlist)
+    cards_per_group = total_cards // 4
     
-    # Split watchlist in half
-    mid = len(watchlist) // 2
-    if is_group_a:
-        active_watchlist = watchlist[:mid]
-        print(f"🔵 Scanning GROUP A ({len(active_watchlist)} cards) - Cards 1-{mid}")
+    # Determine which group based on minute
+    if current_minute <= 14:
+        group_index = 0
+        group_name = "A 🔵"
+    elif current_minute <= 29:
+        group_index = 1
+        group_name = "B 🟢"
+    elif current_minute <= 44:
+        group_index = 2
+        group_name = "C 🟡"
     else:
-        active_watchlist = watchlist[mid:]
-        print(f"🟢 Scanning GROUP B ({len(active_watchlist)} cards) - Cards {mid+1}-{len(watchlist)}")
+        group_index = 3
+        group_name = "D 🟣"
+    
+    # Calculate start and end indices for this group
+    start_idx = group_index * cards_per_group
+    if group_index == 3:  # Last group gets any remainder cards
+        end_idx = total_cards
+    else:
+        end_idx = (group_index + 1) * cards_per_group
+    
+    active_watchlist = watchlist[start_idx:end_idx]
+    print(f"🎯 Scanning GROUP {group_name} ({len(active_watchlist)} cards) - Cards {start_idx+1}-{end_idx}")
     
     if os.path.exists(SEEN_FILE):
         try:
