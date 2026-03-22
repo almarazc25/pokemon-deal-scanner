@@ -52,6 +52,10 @@ def get_ebay_token():
 
 def send_pushover(title, message, url):
     """Send notification to phone via Pushover"""
+    send_pushover_priority(title, message, url, priority=1)
+
+def send_pushover_priority(title, message, url, priority=1):
+    """Send notification to phone via Pushover with custom priority"""
     data = {
         "token": PUSHOVER_APP_TOKEN,
         "user": PUSHOVER_USER_KEY,
@@ -59,8 +63,8 @@ def send_pushover(title, message, url):
         "title": title,
         "url": url,
         "url_title": "Open on eBay",
-        "priority": 1,
-        "sound": "cashregister"
+        "priority": priority,
+        "sound": "cashregister" if priority == 1 else "siren"  # Siren for urgent snipes!
     }
     try:
         requests.post("https://api.pushover.net/1/messages.json", data=data)
@@ -290,6 +294,13 @@ def main():
             if is_bundle_listing(title):
                 continue
             
+            # FEATURE 4: WATCH COUNT FILTER (Insider edge!)
+            # Skip listings with too many watchers = too much competition
+            watch_count = item.get('watchCount', 0)
+            if watch_count > 5:
+                print(f"  ⏭️ Skipping - {watch_count} watchers (too much competition)")
+                continue
+            
             # FEATURE 1: SHIPPING COST CONSIDERATION
             shipping_cost = 0
             shipping_info = item.get('shippingOptions', [])
@@ -297,165 +308,199 @@ def main():
                 shipping_cost = float(shipping_info[0].get('shippingCost', {}).get('value', 0))
             
             total_price = price + shipping_cost
+            
+            # FEATURE 2: BEST OFFER DETECTION
+            buying_options = item.get('buyingOptions', [])
+            has_best_offer = 'BEST_OFFER' in buying_options
+            best_offer_emoji = " 💰" if has_best_offer else ""
+            
+            # 1. Hard $50 minimum filter (on base price, not including shipping)
+            if price < 50:
+                continue
                 
-                # FEATURE 2: BEST OFFER DETECTION
-                buying_options = item.get('buyingOptions', [])
-                has_best_offer = 'BEST_OFFER' in buying_options
-                best_offer_emoji = " 💰" if has_best_offer else ""
-                
-                # 1. Hard $50 minimum filter (on base price, not including shipping)
-                if price < 50:
+            # 2. Keyword exclusion filter
+            if any(kw in title for kw in EXCLUDE_KEYWORDS):
+                continue
+            
+            # 3. CARD NUMBER VERIFICATION (CRITICAL FIX)
+            # Ensures the card number (e.g., "189" or "GG70") is in the title.
+            # The regex ensures "18" doesn't falsely match "189".
+            if card_number:
+                pattern = r'(?<![a-zA-Z0-9])' + re.escape(card_number) + r'(?![a-zA-Z0-9])'
+                if not re.search(pattern, title):
                     continue
+
+            # 4. Detect Grade from Title
+            grade_match = re.search(r'psa\s*-?\s*(10|9|8)\b', title)
+            if not grade_match:
+                continue # Skip if we can't confirm it's a PSA 8, 9, or 10
+                
+            grade_num = grade_match.group(1)
+            grade_label = f"PSA {grade_num}"
+            
+            # 5. Match to correct targets
+            if grade_num == "10":
+                target = card['buyTarget10']
+                market = card['psa10Market']
+            elif grade_num == "9":
+                target = card['buyTarget9']
+                market = card['psa9Market']
+            else:
+                target = card['buyTarget8']
+                market = card['psa8Market']
+            
+            # 6. Check if it's actually a deal (using TOTAL price including shipping)
+            if total_price <= target:
+                # FEATURE 5: AUCTION SNIPER MODE
+                # Separate urgent alerts for auctions ending in <5 minutes
+                is_snipe_opportunity = False
+                time_str = ""
+                if listing_type == "AUCTION" or "AUCTION" in listing_type:
+                    end_date = item.get('itemEndDate', '')
+                    time_str, seconds_left = format_time_left(end_date)
                     
-                # 2. Keyword exclusion filter
-                if any(kw in title for kw in EXCLUDE_KEYWORDS):
-                    continue
-                
-                # 3. CARD NUMBER VERIFICATION (CRITICAL FIX)
-                # Ensures the card number (e.g., "189" or "GG70") is in the title.
-                # The regex ensures "18" doesn't falsely match "189".
-                if card_number:
-                    pattern = r'(?<![a-zA-Z0-9])' + re.escape(card_number) + r'(?![a-zA-Z0-9])'
-                    if not re.search(pattern, title):
+                    # Check for SNIPE mode (< 5 minutes)
+                    if seconds_left <= 300 and seconds_left > 0:
+                        is_snipe_opportunity = True
+                        time_str = f"\n🔥⏱️ ENDING IN {int(seconds_left/60)} MIN - SNIPE NOW!"
+                    # Regular auction window (< 30 minutes)
+                    elif seconds_left <= 1800 and seconds_left > 0:
+                        time_str = f"\n⏳ Ends in: {time_str}"
+                    # Too far away, skip
+                    else:
                         continue
 
-                # 4. Detect Grade from Title
-                grade_match = re.search(r'psa\s*-?\s*(10|9|8)\b', title)
-                if not grade_match:
-                    continue # Skip if we can't confirm it's a PSA 8, 9, or 10
-                    
-                grade_num = grade_match.group(1)
-                grade_label = f"PSA {grade_num}"
+                # Calculate % of market value and discount
+                pct_market = int((total_price / market) * 100) if market > 0 else 0
+                discount_pct = int(((market - total_price) / market) * 100) if market > 0 else 0
+                savings = target - total_price
                 
-                # 5. Match to correct targets
+                # DESIRABILITY SCORE CALCULATION (1-10)
+                desirability = 0
+                
+                # Grade bonus: PSA 10 = +3, PSA 9 = +2, PSA 8 = +1
                 if grade_num == "10":
-                    target = card['buyTarget10']
-                    market = card['psa10Market']
+                    desirability += 3
+                    grade_emoji = "🏆"
                 elif grade_num == "9":
-                    target = card['buyTarget9']
-                    market = card['psa9Market']
+                    desirability += 2
+                    grade_emoji = "✨"
                 else:
-                    target = card['buyTarget8']
-                    market = card['psa8Market']
+                    desirability += 1
+                    grade_emoji = "⚠️"
                 
-                # 6. Check if it's actually a deal (using TOTAL price including shipping)
-                if total_price <= target:
-                    # For auctions, check time remaining
-                    time_str = ""
-                    if listing_type == "AUCTION":
-                        end_date = item.get('itemEndDate', '')
-                        time_str, seconds_left = format_time_left(end_date)
-                        
-                        # Only notify for auctions ending in less than 30 minutes (1800 seconds)
-                        if seconds_left > 1800 or seconds_left <= 0:
-                            continue
-                        time_str = f"\n⏳ Ends in: {time_str}"
-
-                    # Calculate % of market value and discount
-                    pct_market = int((total_price / market) * 100) if market > 0 else 0
-                    discount_pct = int(((market - total_price) / market) * 100) if market > 0 else 0
-                    savings = target - total_price
+                # Discount quality: 25%+ = +3, 20-25% = +2, 15-20% = +1, 10-15% = +1
+                if discount_pct >= 25:
+                    desirability += 3
+                elif discount_pct >= 20:
+                    desirability += 2
+                elif discount_pct >= 10:
+                    desirability += 1
+                
+                # Iconic Pokemon bonus: Umbreon, Charizard, Pikachu, Rayquaza, Lugia = +2
+                iconic_names = ['umbreon', 'charizard', 'pikachu', 'rayquaza', 'lugia', 'mewtwo', 'giratina']
+                if any(name in card['name'].lower() for name in iconic_names):
+                    desirability += 2
+                
+                # Out of print bonus: Evolving Skies, Lost Origin, Silver Tempest = +1
+                oop_sets = ['evolving skies', 'lost origin', 'silver tempest', 'brilliant stars']
+                if any(set_name in card['name'].lower() for set_name in oop_sets):
+                    desirability += 1
+                
+                # Premium card types: Alt Art, SIR, VMAX = +1
+                if any(term in card['name'].lower() for term in ['alt art', 'sir', 'vmax']):
+                    desirability += 1
+                
+                # Cap at 10
+                desirability = min(desirability, 10)
+                
+                # CONFIDENCE RATING
+                if desirability >= 8 and discount_pct >= 15:
+                    confidence = "HIGH 🔥"
+                elif desirability >= 5 and discount_pct >= 10:
+                    confidence = "MEDIUM 👍"
+                else:
+                    confidence = "LOW 💡"
+                
+                # HOLD STRATEGY
+                if discount_pct >= 20 and 'evolving skies' in card['name'].lower() or 'lost origin' in card['name'].lower():
+                    strategy = "Long-term hold 📈 (Dipped card)"
+                elif 'prismatic' in card['name'].lower() or 'surging sparks' in card['name'].lower():
+                    strategy = "Quick flip 💰 (Hot card)"
+                else:
+                    strategy = "Medium hold ⏳"
+                
+                # Star rating visual
+                stars = "⭐" * desirability
+                
+                seller = item.get('seller', {}).get('username', 'Unknown')
+                feedback = item.get('seller', {}).get('feedbackPercentage', 'N/A')
+                condition = item.get('condition', 'Unknown')
+                link = item.get('itemWebUrl')
+                
+                # Build watch count badge (insider info!)
+                watch_badge = ""
+                if watch_count == 0:
+                    watch_badge = "\n💎 NO WATCHERS - You found it first!"
+                elif watch_count <= 2:
+                    watch_badge = f"\n👀 Only {watch_count} watchers - Low competition"
+                
+                # Build shipping line
+                if shipping_cost > 0:
+                    shipping_line = f"\nShipping: ${shipping_cost:.2f}"
+                else:
+                    shipping_line = "\nShipping: FREE ✅"
+                
+                # FEATURE 6: SMART OFFER CALCULATOR
+                # Calculate optimal offer for "best offer" listings
+                best_offer_line = ""
+                if has_best_offer:
+                    # Start at 12-15% below asking (most sellers expect negotiation)
+                    optimal_offer = price * 0.87  # 13% below asking
+                    # Don't go below target + 5% (leave room for counter-offer)
+                    min_offer = target * 1.05
                     
-                    # DESIRABILITY SCORE CALCULATION (1-10)
-                    desirability = 0
-                    
-                    # Grade bonus: PSA 10 = +3, PSA 9 = +2, PSA 8 = +1
-                    if grade_num == "10":
-                        desirability += 3
-                        grade_emoji = "🏆"
-                    elif grade_num == "9":
-                        desirability += 2
-                        grade_emoji = "✨"
+                    if optimal_offer >= min_offer:
+                        offer_discount = int(((price - optimal_offer) / price) * 100)
+                        best_offer_line = f"\n💰 OPTIMAL OFFER: ${optimal_offer:.0f} ({offer_discount}% below asking)"
                     else:
-                        desirability += 1
-                        grade_emoji = "⚠️"
-                    
-                    # Discount quality: 25%+ = +3, 20-25% = +2, 15-20% = +1, 10-15% = +1
-                    if discount_pct >= 25:
-                        desirability += 3
-                    elif discount_pct >= 20:
-                        desirability += 2
-                    elif discount_pct >= 10:
-                        desirability += 1
-                    
-                    # Iconic Pokemon bonus: Umbreon, Charizard, Pikachu, Rayquaza, Lugia = +2
-                    iconic_names = ['umbreon', 'charizard', 'pikachu', 'rayquaza', 'lugia', 'mewtwo', 'giratina']
-                    if any(name in card['name'].lower() for name in iconic_names):
-                        desirability += 2
-                    
-                    # Out of print bonus: Evolving Skies, Lost Origin, Silver Tempest = +1
-                    oop_sets = ['evolving skies', 'lost origin', 'silver tempest', 'brilliant stars']
-                    if any(set_name in card['name'].lower() for set_name in oop_sets):
-                        desirability += 1
-                    
-                    # Premium card types: Alt Art, SIR, VMAX = +1
-                    if any(term in card['name'].lower() for term in ['alt art', 'sir', 'vmax']):
-                        desirability += 1
-                    
-                    # Cap at 10
-                    desirability = min(desirability, 10)
-                    
-                    # CONFIDENCE RATING
-                    if desirability >= 8 and discount_pct >= 15:
-                        confidence = "HIGH 🔥"
-                    elif desirability >= 5 and discount_pct >= 10:
-                        confidence = "MEDIUM 👍"
-                    else:
-                        confidence = "LOW 💡"
-                    
-                    # HOLD STRATEGY
-                    if discount_pct >= 20 and 'evolving skies' in card['name'].lower() or 'lost origin' in card['name'].lower():
-                        strategy = "Long-term hold 📈 (Dipped card)"
-                    elif 'prismatic' in card['name'].lower() or 'surging sparks' in card['name'].lower():
-                        strategy = "Quick flip 💰 (Hot card)"
-                    else:
-                        strategy = "Medium hold ⏳"
-                    
-                    # Star rating visual
-                    stars = "⭐" * desirability
-                    
-                    seller = item.get('seller', {}).get('username', 'Unknown')
-                    feedback = item.get('seller', {}).get('feedbackPercentage', 'N/A')
-                    condition = item.get('condition', 'Unknown')
-                    link = item.get('itemWebUrl')
-                    
-                    # Build shipping line
-                    if shipping_cost > 0:
-                        shipping_line = f"\nShipping: ${shipping_cost:.2f}"
-                    else:
-                        shipping_line = "\nShipping: FREE ✅"
-                    
-                    # Build best offer line
-                    best_offer_line = "\n🤝 ACCEPTS OFFERS - Negotiate lower!" if has_best_offer else ""
-                    
-                    # Build special catch badge
-                    special_catch = ""
-                    if "MISSPELLING" in listing_type:
-                        special_catch = "\n🎯 MISSPELLING CATCH - Low competition!"
-                    elif "FRESH GRADE" in listing_type:
-                        special_catch = "\n🆕 FRESH FROM GRADING - Uninformed seller!"
-                    
-                    # Enhanced Notification
+                        best_offer_line = f"\n💰 ACCEPTS OFFERS - Start at ${min_offer:.0f} (leave room to negotiate)"
+                
+                # Build special catch badge
+                special_catch = ""
+                if "MISSPELLING" in listing_type:
+                    special_catch = "\n🎯 MISSPELLING CATCH - Low competition!"
+                elif "FRESH GRADE" in listing_type:
+                    special_catch = "\n🆕 FRESH FROM GRADING - Uninformed seller!"
+                
+                # Set notification priority (URGENT for snipe opportunities)
+                notification_priority = 1  # High priority (default)
+                if is_snipe_opportunity:
+                    notification_priority = 2  # Emergency priority (bypasses quiet hours)
+                    notif_title = f"🔥 URGENT SNIPE: {card['name']}{best_offer_emoji}"
+                else:
                     notif_title = f"🚨 {listing_type.split('[')[0].strip()}: {card['name']}{best_offer_emoji}"
-                    msg = (
-                        f"Grade: {grade_label} {grade_emoji}\n"
-                        f"Price: ${price:.2f}{shipping_line}\n"
-                        f"TOTAL: ${total_price:.2f} ({pct_market}% of market, {discount_pct}% OFF)\n"
-                        f"Target: ${target} | Market: ${market}\n"
-                        f"Savings: ${savings:.2f} below your max{time_str}{best_offer_line}{special_catch}\n\n"
-                        f"⭐ DESIRABILITY: {desirability}/10 {stars}\n"
-                        f"🎯 CONFIDENCE: {confidence}\n"
-                        f"📊 STRATEGY: {strategy}\n\n"
-                        f"Seller: {seller} ({feedback}%)\n"
-                        f"Condition: {condition}"
-                    )
-                    
-                    send_pushover(notif_title, msg, link)
-                    seen_ids.add(item_id)
-                    new_deals_found = True
-                    
-                    # FEATURE 3: LOG DEAL FOR WEEKLY SUMMARY
-                    log_deal(card['name'], grade_label, total_price, market, discount_pct, desirability, link)
+                
+                msg = (
+                    f"Grade: {grade_label} {grade_emoji}\n"
+                    f"Price: ${price:.2f}{shipping_line}\n"
+                    f"TOTAL: ${total_price:.2f} ({pct_market}% of market, {discount_pct}% OFF)\n"
+                    f"Target: ${target} | Market: ${market}\n"
+                    f"Savings: ${savings:.2f} below your max{time_str}{watch_badge}{best_offer_line}{special_catch}\n\n"
+                    f"⭐ DESIRABILITY: {desirability}/10 {stars}\n"
+                    f"🎯 CONFIDENCE: {confidence}\n"
+                    f"📊 STRATEGY: {strategy}\n\n"
+                    f"Seller: {seller} ({feedback}%)\n"
+                    f"Condition: {condition}"
+                )
+                
+                # Send notification with appropriate priority
+                send_pushover_priority(notif_title, msg, link, notification_priority)
+                seen_ids.add(item_id)
+                new_deals_found = True
+                
+                # FEATURE 3: LOG DEAL FOR WEEKLY SUMMARY
+                log_deal(card['name'], grade_label, total_price, market, discount_pct, desirability, link)
 
     if new_deals_found:
         with open(SEEN_FILE, 'w') as f:
