@@ -119,6 +119,21 @@ def main():
         print(f"Error loading watchlist: {e}")
         return
     
+    # ROTATING GROUP LOGIC - Alternate between Group A and Group B every 15 min
+    # This allows monitoring 2x cards while staying under API limits
+    # Group A: :00, :30 | Group B: :15, :45
+    current_minute = datetime.now(timezone.utc).minute
+    is_group_a = (current_minute % 30) <= 1
+    
+    # Split watchlist in half
+    mid = len(watchlist) // 2
+    if is_group_a:
+        active_watchlist = watchlist[:mid]
+        print(f"🔵 Scanning GROUP A ({len(active_watchlist)} cards) - Cards 1-{mid}")
+    else:
+        active_watchlist = watchlist[mid:]
+        print(f"🟢 Scanning GROUP B ({len(active_watchlist)} cards) - Cards {mid+1}-{len(watchlist)}")
+    
     if os.path.exists(SEEN_FILE):
         try:
             with open(SEEN_FILE, 'r') as f:
@@ -134,7 +149,7 @@ def main():
 
     new_deals_found = False
 
-    for card in watchlist:
+    for card in active_watchlist:
         # The highest target is always PSA 10. Use this for the API filter to capture all grades.
         max_api_price = max(card['buyTarget10'], card['buyTarget9'], card['buyTarget8'])
         query = card['searchQuery']
@@ -200,27 +215,89 @@ def main():
                         end_date = item.get('itemEndDate', '')
                         time_str, seconds_left = format_time_left(end_date)
                         
-                        # Only notify for auctions ending in less than 2 hours (7200 seconds)
-                        if seconds_left > 7200 or seconds_left <= 0:
+                        # Only notify for auctions ending in less than 30 minutes (1800 seconds)
+                        if seconds_left > 1800 or seconds_left <= 0:
                             continue
                         time_str = f"\n⏳ Ends in: {time_str}"
 
-                    # Calculate % of market value
+                    # Calculate % of market value and discount
                     pct_market = int((price / market) * 100) if market > 0 else 0
+                    discount_pct = int(((market - price) / market) * 100) if market > 0 else 0
                     savings = target - price
+                    
+                    # DESIRABILITY SCORE CALCULATION (1-10)
+                    desirability = 0
+                    
+                    # Grade bonus: PSA 10 = +3, PSA 9 = +2, PSA 8 = +1
+                    if grade_num == "10":
+                        desirability += 3
+                        grade_emoji = "🏆"
+                    elif grade_num == "9":
+                        desirability += 2
+                        grade_emoji = "✨"
+                    else:
+                        desirability += 1
+                        grade_emoji = "⚠️"
+                    
+                    # Discount quality: 25%+ = +3, 20-25% = +2, 15-20% = +1, 10-15% = +1
+                    if discount_pct >= 25:
+                        desirability += 3
+                    elif discount_pct >= 20:
+                        desirability += 2
+                    elif discount_pct >= 10:
+                        desirability += 1
+                    
+                    # Iconic Pokemon bonus: Umbreon, Charizard, Pikachu, Rayquaza, Lugia = +2
+                    iconic_names = ['umbreon', 'charizard', 'pikachu', 'rayquaza', 'lugia', 'mewtwo', 'giratina']
+                    if any(name in card['name'].lower() for name in iconic_names):
+                        desirability += 2
+                    
+                    # Out of print bonus: Evolving Skies, Lost Origin, Silver Tempest = +1
+                    oop_sets = ['evolving skies', 'lost origin', 'silver tempest', 'brilliant stars']
+                    if any(set_name in card['name'].lower() for set_name in oop_sets):
+                        desirability += 1
+                    
+                    # Premium card types: Alt Art, SIR, VMAX = +1
+                    if any(term in card['name'].lower() for term in ['alt art', 'sir', 'vmax']):
+                        desirability += 1
+                    
+                    # Cap at 10
+                    desirability = min(desirability, 10)
+                    
+                    # CONFIDENCE RATING
+                    if desirability >= 8 and discount_pct >= 15:
+                        confidence = "HIGH 🔥"
+                    elif desirability >= 5 and discount_pct >= 10:
+                        confidence = "MEDIUM 👍"
+                    else:
+                        confidence = "LOW 💡"
+                    
+                    # HOLD STRATEGY
+                    if discount_pct >= 20 and 'evolving skies' in card['name'].lower() or 'lost origin' in card['name'].lower():
+                        strategy = "Long-term hold 📈 (Dipped card)"
+                    elif 'prismatic' in card['name'].lower() or 'surging sparks' in card['name'].lower():
+                        strategy = "Quick flip 💰 (Hot card)"
+                    else:
+                        strategy = "Medium hold ⏳"
+                    
+                    # Star rating visual
+                    stars = "⭐" * desirability
                     
                     seller = item.get('seller', {}).get('username', 'Unknown')
                     feedback = item.get('seller', {}).get('feedbackPercentage', 'N/A')
-                    condition = item.get('condition', 'Unknown') # Display only, no filtering
+                    condition = item.get('condition', 'Unknown')
                     link = item.get('itemWebUrl')
                     
-                    # Format Notification
+                    # Enhanced Notification
                     notif_title = f"🚨 {listing_type}: {card['name']}"
                     msg = (
-                        f"Grade: {grade_label}\n"
-                        f"Price: ${price:.2f} ({pct_market}% of market)\n"
+                        f"Grade: {grade_label} {grade_emoji}\n"
+                        f"Price: ${price:.2f} ({pct_market}% of market, {discount_pct}% OFF)\n"
                         f"Target: ${target} | Market: ${market}\n"
-                        f"Savings: ${savings:.2f} below your max{time_str}\n"
+                        f"Savings: ${savings:.2f} below your max{time_str}\n\n"
+                        f"⭐ DESIRABILITY: {desirability}/10 {stars}\n"
+                        f"🎯 CONFIDENCE: {confidence}\n"
+                        f"📊 STRATEGY: {strategy}\n\n"
                         f"Seller: {seller} ({feedback}%)\n"
                         f"Condition: {condition}"
                     )
