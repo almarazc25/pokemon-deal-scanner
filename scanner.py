@@ -138,6 +138,7 @@ def main():
         # The highest target is always PSA 10. Use this for the API filter to capture all grades.
         max_api_price = max(card['buyTarget10'], card['buyTarget9'], card['buyTarget8'])
         query = card['searchQuery']
+        card_number = str(card.get('cardNumber', '')).lower()
         
         print(f"Scanning: {card['name']} (Max API Price: ${max_api_price})")
         
@@ -164,12 +165,12 @@ def main():
                 if any(kw in title for kw in EXCLUDE_KEYWORDS):
                     continue
                 
-                # 3. STRICT TITLE MATCHING (Fixes the Charizard/Glaceon keyword stuffing issue)
-                # This ensures the first two words of your search query (e.g., "Charizard" and "VSTAR") 
-                # are ACTUALLY in the title, ignoring eBay's fuzzy search results.
-                query_words = query.lower().split()
-                if len(query_words) >= 2:
-                    if not (query_words[0] in title and query_words[1] in title):
+                # 3. CARD NUMBER VERIFICATION (CRITICAL FIX)
+                # Ensures the card number (e.g., "189" or "GG70") is in the title.
+                # The regex ensures "18" doesn't falsely match "189".
+                if card_number:
+                    pattern = r'(?<![a-zA-Z0-9])' + re.escape(card_number) + r'(?![a-zA-Z0-9])'
+                    if not re.search(pattern, title):
                         continue
 
                 # 4. Detect Grade from Title
@@ -205,7 +206,7 @@ def main():
                         time_str = f"\n⏳ Ends in: {time_str}"
 
                     # Calculate % of market value
-                    pct_market = int((price / market) * 100)
+                    pct_market = int((price / market) * 100) if market > 0 else 0
                     savings = target - price
                     
                     seller = item.get('seller', {}).get('username', 'Unknown')
