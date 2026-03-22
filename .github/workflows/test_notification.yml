@@ -1,0 +1,72 @@
+name: Test Notification (ONE TIME USE)
+
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Send Test Notification
+        env:
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
+        run: |
+          python -c "
+          import os
+          import requests
+
+          # Send test notification
+          data = {
+              'token': os.getenv('PUSHOVER_APP_TOKEN'),
+              'user': os.getenv('PUSHOVER_USER_KEY'),
+              'message': '''✅ TEST SUCCESSFUL!
+
+          Your Pokemon Deal Scanner is working perfectly:
+          ✅ GitHub Actions running
+          ✅ Python environment set up
+          ✅ Pushover notifications working
+          ✅ All secrets configured correctly
+
+          Ready to catch deals! 🎯💰
+
+          Next steps:
+          1. Delete test_notification.yml workflow
+          2. Let the real scanner run every 15 minutes
+          3. Wait for deals (targets are strict - be patient!)
+
+          Scanner monitoring: 92 cards × 3 grades = 276 SKUs
+          ''',
+              'title': '🧪 Pokemon Scanner Test',
+              'priority': 1,
+              'sound': 'cashregister'
+          }
+
+          try:
+              response = requests.post('https://api.pushover.net/1/messages.json', data=data)
+              if response.status_code == 200:
+                  print('✅ Test notification sent successfully!')
+                  print('Check your phone - you should see a message!')
+              else:
+                  print(f'❌ Failed: {response.status_code}')
+                  print(response.text)
+          except Exception as e:
+              print(f'❌ Error: {e}')
+          "
