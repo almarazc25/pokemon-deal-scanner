@@ -117,7 +117,7 @@ def main():
             short_name = card.split('(')[0].strip()[:30]
             msg += f"  {short_name}: {count}x\n"
     
-    msg += f"\n✅ Scanner running 24/7\n92 cards × 3 grades monitored"
+    msg += f"\n✅ Scanner running 24/7\n500 cards × 3 grades monitored"
     
     # Send notification
     send_pushover("📊 Weekly Pokemon Scanner Report", msg)

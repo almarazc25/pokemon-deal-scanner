@@ -1,124 +1,44 @@
-# 📈 Scanner Scaling Guide
+# Scaling & Resource Optimization Strategy
 
-## How the Rotating Groups Work
+## Current Capacity: 500 Cards
+The scanner has been optimized to monitor **500 high-value cards** simultaneously across **1,500 grade-specific price points** (PSA 10, 9, 8).
 
-Your scanner now uses **rotating card groups** to monitor **~42 cards** while staying under eBay's 5,000 calls/day limit.
+### 📊 API Usage Breakdown (The "Batcher" Engine)
+By utilizing eBay's OR logic and grouping cards by set, we have achieved maximum throughput while staying within the 5,000 daily call limit.
 
-### How It Works:
-- **Every 15 minutes**, the scanner runs on GitHub Actions
-- **Group A** (first half of watchlist): Scans at :00 and :30
-- **Group B** (second half of watchlist): Scans at :15 and :45
-- Each card is scanned **every 30 minutes** (still very fast!)
-
-### Current Capacity:
-- **21 cards** per group × 2 groups = **42 total cards**
-- Each card: 2 API calls (Buy It Now + Auction)
-- Total: ~4,032 API calls/day (80% of 5,000 limit) ✅
-
----
-
-## 🎯 How to Add More Cards
-
-### Maximum Capacity:
-- **~42 cards total** at current settings
-- You currently have **21 cards** (Group A only)
-- **You can add ~21 more cards!**
-
-### Steps to Add Cards:
-
-1. **Add new card objects to `watchlist.json`:**
-```json
-{
-  "id": "new-card-id",
-  "name": "Card Name #123 (Set Name)",
-  "searchQuery": "Card Name 123 Set Name PSA",
-  "cardNumber": "123",
-  "psa10Market": 500,
-  "psa9Market": 300,
-  "psa8Market": 240,
-  "buyTarget10": 400,
-  "buyTarget9": 240,
-  "buyTarget8": 180
-}
-```
-
-2. **Card Requirements:**
-   - PSA 9 market price MUST be under $500
-   - Must have a valid card number (not "SIR" or placeholders)
-   - Buy targets under $450
-
-3. **Recommended Cards to Add:**
-   - More Evolving Skies alt arts (Flareon V, Jolteon V, etc.)
-   - More Crown Zenith Galarian Gallery (Charizard V, Moltres, Zapdos)
-   - Stellar Crown cards (Pikachu ex, etc.)
-   - 151 set cards (Mew ex, Charizard ex, etc.)
-   - Obsidian Flames (Charizard ex)
-
-4. **Commit and push:**
-```bash
-git add watchlist.json
-git commit -m "Add new cards to watchlist"
-git push
-```
+- **Batch Size**: 5 cards per API call.
+- **Total Batches**: 100 batches (500 cards total).
+- **Rotation**: 4 groups of 25 batches.
+- **Scan Frequency**: Every 15 minutes (96 scans per day).
+- **Calls per Scan**: 25 batches × 2 (Fixed Price + Auction) = 50 calls.
+- **Daily Usage**: 50 calls × 96 scans = **4,800 calls**.
+- **Utilization**: **96% of 5,000 limit** (Optimized for maximum coverage).
 
 ---
 
-## 📊 API Usage Calculator
+## Technical Edge Features
 
-**Formula:**
-```
-Cards per group: X
-API calls per card: 2 (Buy It Now + Auction)
-Scans per day: 96 (every 15 min × 24 hours)
+### 1. The Batcher Engine 🚀
+Uses optimized queries like `(189,192,180,194,215) "Evolving Skies" PSA` to retrieve data for 5 cards in a single request. This reduced API overhead by 80%, allowing the watchlist to grow from 92 to 500 cards without increasing latency.
 
-Daily API calls = X × 2 × 96
-```
+### 2. Profit Margin Calculator 💵
+Automatically calculates **Net Profit** for every deal by subtracting:
+- **Total Cost**: Price + Actual Shipping.
+- **eBay Fees**: Estimated at 13% of Market Value.
+- **Logistics**: $5.00 estimated outgoing shipping/handling.
+*Ensures you only get notifications for deals that leave room for a healthy profit.*
 
-**Examples:**
-- 20 cards/group = 3,840 calls/day (77% usage) ✅
-- 21 cards/group = 4,032 calls/day (81% usage) ✅
-- 22 cards/group = 4,224 calls/day (84% usage) ✅
-- 25 cards/group = 4,800 calls/day (96% usage) ⚠️
-- 26 cards/group = 4,992 calls/day (99.8% usage) 🔴
+### 3. Dynamic Strategy Labels 📊
+Labels deals based on market demand and set age:
+- **Quick Flip**: Modern hot sets (151, Prismatic Evolutions) where demand is at all-time highs.
+- **Long-term Hold**: Investment-grade modern (Evolving Skies) or Vintage.
+- **Legacy Hold**: Ultra-rare vintage grails.
 
-**Safe maximum: 25 cards per group (50 total)**
-
----
-
-## 🔧 How the Groups Are Split
-
-The scanner automatically splits your watchlist in half:
-
-**Example with 42 cards:**
-- **Group A (Cards 1-21):** Umbreon V, Dragonite V, Espeon V... (scans at :00, :30)
-- **Group B (Cards 22-42):** Jolteon V, Flareon V, Mew ex... (scans at :15, :45)
-
-**Important:** The split is based on **card order in watchlist.json**, so you can control which cards go in which group by reordering them.
-
-### Strategy Tip:
-- Put **high-priority cards** at the **top** (Group A scans first at :00)
-- Put **lower-priority cards** at the **bottom** (Group B scans at :15)
+### 4. Likelihood & Confidence Score 🎯
+- **Likelihood**: HIGH (10-15% off), MEDIUM (15-25% off), LOW (25%+ off - RARE STEAL).
+- **Score (1-10)**: Weighted based on grade, discount depth, and iconic status of the Pokemon.
 
 ---
 
-## ⏱️ Timing Logic
-
-The scanner determines which group to scan based on the current minute:
-
-- **:00-:01** → Group A
-- **:15-:16** → Group B
-- **:30-:31** → Group A
-- **:45-:46** → Group B
-
-This 1-minute buffer ensures the cron job (which might trigger at :00 or :01) always hits the right group.
-
----
-
-## 🚀 Next Steps
-
-1. **Add ~21 more cards** to your watchlist (currently at 21, can go to 42)
-2. **Organize by priority** (top half = most wanted cards)
-3. **Push changes** to GitHub
-4. **Monitor logs** to confirm both groups are scanning
-
-Your scanner will automatically handle the rotation! 🎯
+## Future Growth
+To scale beyond 500 cards, the rotation interval can be increased (e.g., 30-minute scans would allow for 1,000 cards) or additional eBay developer accounts can be linked.
