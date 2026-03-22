@@ -95,6 +95,42 @@ def log_deal(card_name, grade, price, market, discount_pct, desirability, link):
     except Exception as e:
         print(f"Failed to log deal: {e}")
 
+def generate_misspellings(query):
+    """Generate common misspellings to catch underpriced listings others miss"""
+    misspelling_map = {
+        'umbreon': ['umbreon', 'umbreoon', 'umbrion'],
+        'espeon': ['espion', 'espon'],
+        'glaceon': ['glacoen', 'glacion'],
+        'leafeon': ['leafon', 'leafion'],
+        'sylveon': ['sylvion', 'sylvon'],
+        'vaporeon': ['vapereon', 'vaporion'],
+        'flareon': ['flarion', 'flaroen'],
+        'jolteon': ['joltion', 'joltoen'],
+        'charizard': ['charizad', 'charizrd', 'charzard'],
+        'pikachu': ['pikchu', 'pikacu'],
+        'rayquaza': ['rayquza', 'raquaza'],
+        'mewtwo': ['mewto', 'mewtoo'],
+        'giratina': ['giritina', 'garatina'],
+        'dragonite': ['dragonight', 'dragonit'],
+        'gengar': ['genger', 'gangar'],
+        'lucario': ['lucario', 'lucarion'],
+        'gardevoir': ['gardevior', 'gardvoir']
+    }
+    
+    query_lower = query.lower()
+    for correct, mistakes in misspelling_map.items():
+        if correct in query_lower:
+            # Return one common misspelling variant
+            return query.lower().replace(correct, mistakes[0])
+    
+    return None
+
+def is_bundle_listing(title):
+    """Detect if listing contains multiple cards"""
+    bundle_keywords = ['lot', 'bundle', 'collection', 'set of', 'x2', 'x3', 'x4', 'x5', ' + ', ' and ']
+    title_lower = title.lower()
+    return any(keyword in title_lower for keyword in bundle_keywords)
+
 def search_ebay(token, query, max_price, is_auction=False):
     """Search eBay Browse API (Combined query for PSA 8/9/10)"""
     url = "https://api.ebay.com/buy/browse/v1/item_summary/search"
@@ -202,28 +238,63 @@ def main():
         
         print(f"Scanning: {card['name']} (Max API Price: ${max_api_price})")
         
-        # We do exactly TWO API calls per card to stay under rate limits
-        search_types =[
+        # SMART SEARCH STRATEGY:
+        # - Primary search: Normal query (2 API calls: BIN + Auction)
+        # - Bonus search (alternating): Misspelling OR Fresh grade (1 API call)
+        # This keeps us at 3 calls per card = 69 calls/scan (within budget!)
+        
+        all_results = []
+        
+        # PRIMARY SEARCH: Normal query (BUY IT NOW + AUCTION)
+        search_types = [
             ("BUY IT NOW", search_ebay(token, query, max_api_price, is_auction=False)),
             ("AUCTION", search_ebay(token, query, max_api_price, is_auction=True))
         ]
         
         for listing_type, results in search_types:
-            for item in results:
-                item_id = item.get('itemId')
-                if item_id in seen_ids:
-                    continue
-                
-                title = item.get('title', '').lower()
-                price = float(item.get('price', {}).get('value', 0))
-                
-                # FEATURE 1: SHIPPING COST CONSIDERATION
-                shipping_cost = 0
-                shipping_info = item.get('shippingOptions', [])
-                if shipping_info and len(shipping_info) > 0:
-                    shipping_cost = float(shipping_info[0].get('shippingCost', {}).get('value', 0))
-                
-                total_price = price + shipping_cost
+            all_results.extend([(listing_type, item) for item in results])
+            time.sleep(1)
+        
+        # BONUS SEARCH: Alternate between misspelling and fresh grade
+        # Use card index to alternate strategy
+        card_index = active_watchlist.index(card)
+        if card_index % 2 == 0:
+            # Even cards: Try misspelling variant
+            misspelled = generate_misspellings(query)
+            if misspelled:
+                print(f"  + Bonus: Misspelling search '{misspelled}'")
+                bonus_results = search_ebay(token, misspelled, max_api_price, is_auction=False)
+                all_results.extend([("BUY IT NOW [MISSPELLING]", item) for item in bonus_results])
+                time.sleep(1)
+        else:
+            # Odd cards: Try fresh grade targeting
+            fresh_query = f"{query} just back PSA fresh grade"
+            print(f"  + Bonus: Fresh grade search")
+            bonus_results = search_ebay(token, fresh_query, max_api_price, is_auction=False)
+            all_results.extend([("BUY IT NOW [FRESH GRADE]", item) for item in bonus_results])
+            time.sleep(1)
+        
+        # Process all results from all query variants
+        for listing_type, item in all_results:
+            item_id = item.get('itemId')
+            if item_id in seen_ids:
+                continue
+            
+            title = item.get('title', '').lower()
+            price = float(item.get('price', {}).get('value', 0))
+            
+            # FEATURE 3: BUNDLE DEAL DETECTION
+            # Skip bundles for now - we'll handle them separately below
+            if is_bundle_listing(title):
+                continue
+            
+            # FEATURE 1: SHIPPING COST CONSIDERATION
+            shipping_cost = 0
+            shipping_info = item.get('shippingOptions', [])
+            if shipping_info and len(shipping_info) > 0:
+                shipping_cost = float(shipping_info[0].get('shippingCost', {}).get('value', 0))
+            
+            total_price = price + shipping_cost
                 
                 # FEATURE 2: BEST OFFER DETECTION
                 buying_options = item.get('buyingOptions', [])
@@ -355,14 +426,21 @@ def main():
                     # Build best offer line
                     best_offer_line = "\n🤝 ACCEPTS OFFERS - Negotiate lower!" if has_best_offer else ""
                     
+                    # Build special catch badge
+                    special_catch = ""
+                    if "MISSPELLING" in listing_type:
+                        special_catch = "\n🎯 MISSPELLING CATCH - Low competition!"
+                    elif "FRESH GRADE" in listing_type:
+                        special_catch = "\n🆕 FRESH FROM GRADING - Uninformed seller!"
+                    
                     # Enhanced Notification
-                    notif_title = f"🚨 {listing_type}: {card['name']}{best_offer_emoji}"
+                    notif_title = f"🚨 {listing_type.split('[')[0].strip()}: {card['name']}{best_offer_emoji}"
                     msg = (
                         f"Grade: {grade_label} {grade_emoji}\n"
                         f"Price: ${price:.2f}{shipping_line}\n"
                         f"TOTAL: ${total_price:.2f} ({pct_market}% of market, {discount_pct}% OFF)\n"
                         f"Target: ${target} | Market: ${market}\n"
-                        f"Savings: ${savings:.2f} below your max{time_str}{best_offer_line}\n\n"
+                        f"Savings: ${savings:.2f} below your max{time_str}{best_offer_line}{special_catch}\n\n"
                         f"⭐ DESIRABILITY: {desirability}/10 {stars}\n"
                         f"🎯 CONFIDENCE: {confidence}\n"
                         f"📊 STRATEGY: {strategy}\n\n"
@@ -376,9 +454,6 @@ def main():
                     
                     # FEATURE 3: LOG DEAL FOR WEEKLY SUMMARY
                     log_deal(card['name'], grade_label, total_price, market, discount_pct, desirability, link)
-            
-            # Sleep 1 second between API calls to respect rate limits
-            time.sleep(1)
 
     if new_deals_found:
         with open(SEEN_FILE, 'w') as f:
