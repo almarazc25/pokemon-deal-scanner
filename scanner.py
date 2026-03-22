@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 # Configuration
 WATCHLIST_FILE = 'watchlist.json'
 SEEN_FILE = 'seen_listings.json'
+DEALS_LOG_FILE = 'deals_log.json'  # Track deals for weekly summary
 
 # Load Secrets from Environment
 EBAY_CLIENT_ID = os.getenv('EBAY_CLIENT_ID')
@@ -67,6 +68,33 @@ def send_pushover(title, message, url):
     except Exception as e:
         print(f"Failed to send Pushover notification: {e}")
 
+def log_deal(card_name, grade, price, market, discount_pct, desirability, link):
+    """Log deal to JSON file for weekly summary tracking"""
+    deal_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "card": card_name,
+        "grade": grade,
+        "price": price,
+        "market": market,
+        "discount": discount_pct,
+        "desirability": desirability,
+        "link": link
+    }
+    
+    try:
+        if os.path.exists(DEALS_LOG_FILE):
+            with open(DEALS_LOG_FILE, 'r') as f:
+                deals = json.load(f)
+        else:
+            deals = []
+        
+        deals.append(deal_entry)
+        
+        with open(DEALS_LOG_FILE, 'w') as f:
+            json.dump(deals, f, indent=2)
+    except Exception as e:
+        print(f"Failed to log deal: {e}")
+
 def search_ebay(token, query, max_price, is_auction=False):
     """Search eBay Browse API (Combined query for PSA 8/9/10)"""
     url = "https://api.ebay.com/buy/browse/v1/item_summary/search"
@@ -80,7 +108,8 @@ def search_ebay(token, query, max_price, is_auction=False):
         "category_ids": "183454",
         "filter": f"buyingOptions:{{{buying_option}}},price:[50..{max_price}],priceCurrency:USD",
         "limit": 15,
-        "sort": "newlyListed" if not is_auction else "endingSoonest"
+        "sort": "newlyListed" if not is_auction else "endingSoonest",
+        "fieldgroups": "EXTENDED"  # Get shipping costs and best offer info
     }
     
     try:
@@ -188,7 +217,20 @@ def main():
                 title = item.get('title', '').lower()
                 price = float(item.get('price', {}).get('value', 0))
                 
-                # 1. Hard $50 minimum filter
+                # FEATURE 1: SHIPPING COST CONSIDERATION
+                shipping_cost = 0
+                shipping_info = item.get('shippingOptions', [])
+                if shipping_info and len(shipping_info) > 0:
+                    shipping_cost = float(shipping_info[0].get('shippingCost', {}).get('value', 0))
+                
+                total_price = price + shipping_cost
+                
+                # FEATURE 2: BEST OFFER DETECTION
+                buying_options = item.get('buyingOptions', [])
+                has_best_offer = 'BEST_OFFER' in buying_options
+                best_offer_emoji = " 💰" if has_best_offer else ""
+                
+                # 1. Hard $50 minimum filter (on base price, not including shipping)
                 if price < 50:
                     continue
                     
@@ -223,8 +265,8 @@ def main():
                     target = card['buyTarget8']
                     market = card['psa8Market']
                 
-                # 6. Check if it's actually a deal
-                if price <= target:
+                # 6. Check if it's actually a deal (using TOTAL price including shipping)
+                if total_price <= target:
                     # For auctions, check time remaining
                     time_str = ""
                     if listing_type == "AUCTION":
@@ -237,9 +279,9 @@ def main():
                         time_str = f"\n⏳ Ends in: {time_str}"
 
                     # Calculate % of market value and discount
-                    pct_market = int((price / market) * 100) if market > 0 else 0
-                    discount_pct = int(((market - price) / market) * 100) if market > 0 else 0
-                    savings = target - price
+                    pct_market = int((total_price / market) * 100) if market > 0 else 0
+                    discount_pct = int(((market - total_price) / market) * 100) if market > 0 else 0
+                    savings = target - total_price
                     
                     # DESIRABILITY SCORE CALCULATION (1-10)
                     desirability = 0
@@ -304,13 +346,23 @@ def main():
                     condition = item.get('condition', 'Unknown')
                     link = item.get('itemWebUrl')
                     
+                    # Build shipping line
+                    if shipping_cost > 0:
+                        shipping_line = f"\nShipping: ${shipping_cost:.2f}"
+                    else:
+                        shipping_line = "\nShipping: FREE ✅"
+                    
+                    # Build best offer line
+                    best_offer_line = "\n🤝 ACCEPTS OFFERS - Negotiate lower!" if has_best_offer else ""
+                    
                     # Enhanced Notification
-                    notif_title = f"🚨 {listing_type}: {card['name']}"
+                    notif_title = f"🚨 {listing_type}: {card['name']}{best_offer_emoji}"
                     msg = (
                         f"Grade: {grade_label} {grade_emoji}\n"
-                        f"Price: ${price:.2f} ({pct_market}% of market, {discount_pct}% OFF)\n"
+                        f"Price: ${price:.2f}{shipping_line}\n"
+                        f"TOTAL: ${total_price:.2f} ({pct_market}% of market, {discount_pct}% OFF)\n"
                         f"Target: ${target} | Market: ${market}\n"
-                        f"Savings: ${savings:.2f} below your max{time_str}\n\n"
+                        f"Savings: ${savings:.2f} below your max{time_str}{best_offer_line}\n\n"
                         f"⭐ DESIRABILITY: {desirability}/10 {stars}\n"
                         f"🎯 CONFIDENCE: {confidence}\n"
                         f"📊 STRATEGY: {strategy}\n\n"
@@ -321,6 +373,9 @@ def main():
                     send_pushover(notif_title, msg, link)
                     seen_ids.add(item_id)
                     new_deals_found = True
+                    
+                    # FEATURE 3: LOG DEAL FOR WEEKLY SUMMARY
+                    log_deal(card['name'], grade_label, total_price, market, discount_pct, desirability, link)
             
             # Sleep 1 second between API calls to respect rate limits
             time.sleep(1)
