@@ -156,7 +156,7 @@ def main():
                 title = item.get('title', '').lower()
                 price = float(item.get('price', {}).get('value', 0))
                 
-                # 1. Hard $50 minimum filter (double check just in case API filter leaks)
+                # 1. Hard $50 minimum filter
                 if price < 50:
                     continue
                     
@@ -164,7 +164,15 @@ def main():
                 if any(kw in title for kw in EXCLUDE_KEYWORDS):
                     continue
                 
-                # 3. Detect Grade from Title
+                # 3. STRICT TITLE MATCHING (Fixes the Charizard/Glaceon keyword stuffing issue)
+                # This ensures the first two words of your search query (e.g., "Charizard" and "VSTAR") 
+                # are ACTUALLY in the title, ignoring eBay's fuzzy search results.
+                query_words = query.lower().split()
+                if len(query_words) >= 2:
+                    if not (query_words[0] in title and query_words[1] in title):
+                        continue
+
+                # 4. Detect Grade from Title
                 grade_match = re.search(r'psa\s*-?\s*(10|9|8)\b', title)
                 if not grade_match:
                     continue # Skip if we can't confirm it's a PSA 8, 9, or 10
@@ -172,7 +180,7 @@ def main():
                 grade_num = grade_match.group(1)
                 grade_label = f"PSA {grade_num}"
                 
-                # 4. Match to correct targets
+                # 5. Match to correct targets
                 if grade_num == "10":
                     target = card['buyTarget10']
                     market = card['psa10Market']
@@ -183,7 +191,7 @@ def main():
                     target = card['buyTarget8']
                     market = card['psa8Market']
                 
-                # 5. Check if it's actually a deal
+                # 6. Check if it's actually a deal
                 if price <= target:
                     # For auctions, check time remaining
                     time_str = ""
