@@ -33,6 +33,9 @@ def update_market_prices():
     """Fetch latest PSA 8/9/10 prices from PriceCharting and update watchlist"""
     print("🔄 Syncing market prices with PriceCharting...")
     try:
+        if not os.path.exists(WATCHLIST_FILE):
+            return
+            
         with open(WATCHLIST_FILE, 'r') as f:
             data = json.load(f)
 
@@ -47,9 +50,13 @@ def update_market_prices():
 
             # API Call placeholder: In a live environment, this would call PriceCharting
             # We recalculate targets based on 82% margin to ensure accuracy
-            card['buyTarget10'] = round(card.get('psa10Market', 0) * 0.82, 2)
-            card['buyTarget9'] = round(card.get('psa9Market', 0) * 0.82, 2)
-            card['buyTarget8'] = round(card.get('psa8Market', 0) * 0.82, 2)
+            p10 = card.get('psa10Market', 0)
+            p9 = card.get('psa9Market', 0)
+            p8 = card.get('psa8Market', 0)
+            
+            card['buyTarget10'] = round(p10 * 0.82, 2) if p10 > 0 else 0
+            card['buyTarget9'] = round(p9 * 0.82, 2) if p9 > 0 else 0
+            card['buyTarget8'] = round(p8 * 0.82, 2) if p8 > 0 else 0
 
             # BUDGET PROTECTION: Disable if target exceeds $800
             if card['buyTarget10'] > 800: card['buyTarget10'] = 0
@@ -219,15 +226,17 @@ def main():
             query = f"({nums}) \"{set_name}\" PSA"
             batch_queries.append((chunk, query))
 
-    # DYNAMIC ROTATION
+    # DYNAMIC ROTATION: Split total batches into 4 groups
     current_min = datetime.now(timezone.utc).minute
     group_idx = current_min // 15
     total_b = len(batch_queries)
     b_per_g = max(1, total_b // 4)
-    start, end = group_idx * b_per_g, (total_b if group_idx == 3 else (group_idx + 1) * b_per_g)
+    start = group_idx * b_per_g
+    end = total_b if group_idx == 3 else min(total_b, (group_idx + 1) * b_per_g)
     active_queries = batch_queries[start:end]
 
-    print(f"🎯 Scanning GROUP {group_idx+1} ({len(active_queries)} Batches)")
+    print(f"🎯 Scanning GROUP {group_idx+1} ({len(active_queries)} Batches / {total_b} Total)")
+    print(f"📊 Daily API Usage: {len(active_queries) * 2 * 96} calls ({(len(active_queries) * 2 * 96 / 5000)*100:.1f}%)")
 
     if os.path.exists(SEEN_FILE):
         try:
@@ -240,9 +249,19 @@ def main():
 
     new_deals = False
     for card_chunk, query in active_queries:
-        targets = []
-        for c in card_chunk: targets.extend([c.get('buyTarget10', 0), c.get('buyTarget9', 0)])
-        max_price = max(targets) if targets else 50000
+        # Determine max price based on enabled buy targets
+        valid_targets = []
+        for c in card_chunk:
+            for g in ['10', '9', '8']:
+                val = c.get(f'buyTarget{g}', 0)
+                if val > 0: valid_targets.append(val)
+        
+        if not valid_targets:
+            print(f"  ⏭️ Skipping '{query}' - No active targets under budget.")
+            continue
+            
+        max_price = max(valid_targets)
+        print(f"Batch Search: {query} (Max Price: ${max_price})")
         
         search_runs = [("BIN", search_ebay(token, query, max_price, False)), 
                        ("AUCTION", search_ebay(token, query, max_price, True))]
@@ -316,3 +335,6 @@ def main():
         pass
 
     print("Scan complete.")
+
+if __name__ == "__main__":
+    main()
