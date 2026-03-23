@@ -21,7 +21,8 @@ EXCLUDE_KEYWORDS = [
     "keychain", "tin", "pin", "replica", "reprint", "custom", "proxy", "case", 
     "display", "stand", "holder", "sleeve", "toploader", "magnet", "sticker", 
     "poster", "plush", "figure", "toy", "mini slab", "novelty", "ornament", 
-    "charm", "mystery", "pack", "box break", "digital", "code", "deck", "proxy"
+    "charm", "mystery", "pack", "box break", "digital", "code", "deck", "proxy",
+    "reverse holo", "reverse-holo", "rev holo", "non-holo", "non holo", "rh", "no holo"
 ]
 
 def get_ebay_token():
@@ -115,12 +116,72 @@ def format_time_left(end_date_str):
     except Exception: return "Unknown", 999999
 
 def find_matching_card(title, card_batch):
+    """
+    Precisely match an eBay listing to a card in the watchlist batch.
+    Requires Name Match, Number Match, and Set Verification.
+    """
     title_lower = title.lower()
+    
+    # 1. Clean the title: remove PSA grade numbers
+    cleaned_title = re.sub(r'psa\s*-?\s*\d+', 'psa ', title_lower)
+    cleaned_title = re.sub(r'grade\s*\d+', 'grade ', cleaned_title)
+    cleaned_title = re.sub(r'bgs\s*-?\s*\d+', 'bgs ', cleaned_title)
+    cleaned_title = re.sub(r'cgc\s*-?\s*\d+', 'cgc ', cleaned_title)
+
     for card in card_batch:
+        card_name_lower = card['name'].lower()
+        set_name_lower = card.get('set', '').lower()
+        
+        # FACTOR 1: Set Validation (Crucial for high-end vintage)
+        # If the set is Neo Revelation, the title should ideally mention 'Neo' or 'Revelation'
+        # We use a broad check to be safe but effective.
+        set_keywords = set_name_lower.split()
+        if not any(kw in title_lower for kw in set_keywords if len(kw) > 3):
+            # If set is 'Base Set', check for 'Base'
+            if "base" in set_name_lower and "base" not in title_lower:
+                continue
+            # Special case for Neo sets
+            if "neo" in set_name_lower and "neo" not in title_lower:
+                continue
+
+        # FACTOR 2: Name Validation
+        # Extract keywords from card name (excluding common words)
+        name_parts = [p for p in card_name_lower.split() if p not in ["holo", "art", "rare", "sir", "ir"]]
+        if not all(part in title_lower for p in name_parts for part in [p] if len(p) > 2):
+            continue
+            
+        # EXTRA STRICT: "Shining" or "Crystal" MUST be in the title if they are in the name
+        if "shining" in card_name_lower and "shining" not in title_lower:
+            continue
+        if "crystal" in card_name_lower and "crystal" not in title_lower:
+            continue
+
+        # FACTOR 3: Number Validation (Strict)
         card_num = str(card.get('cardNumber', '')).lower()
-        if not card_num: continue
+        if not card_num:
+            continue
+            
         pattern = r'(?<![a-zA-Z0-9])' + re.escape(card_num) + r'(?![a-zA-Z0-9])'
-        if re.search(pattern, title_lower): return card
+        if re.search(pattern, cleaned_title):
+            
+            # FACTOR 4: 1st Edition / Shadowless Check
+            is_1st_ed_watchlist = "1st edition" in card_name_lower
+            is_1st_ed_listing = any(x in title_lower for x in ["1st edition", "1st ed", "first edition"])
+            
+            if is_1st_ed_watchlist and not is_1st_ed_listing:
+                continue
+            # If listing is 1st Edition but watchlist entry isn't, also skip (to avoid overpaying for unlimited targets)
+            if not is_1st_ed_watchlist and is_1st_ed_listing:
+                continue
+                
+            is_shadowless_watchlist = "shadowless" in card_name_lower
+            is_shadowless_listing = "shadowless" in title_lower
+            
+            if is_shadowless_watchlist and not is_shadowless_listing:
+                continue
+
+            return card
+            
     return None
 
 def calculate_strategy(set_name, market_price):
@@ -133,6 +194,34 @@ def calculate_strategy(set_name, market_price):
         return "Long-term Hold (Investment Grade) 📈"
     else:
         return "Legacy Hold (Ultra Rare Vintage) 🏛️"
+
+def generate_misspellings(query):
+    """Generate common misspellings to catch underpriced listings others miss"""
+    misspelling_map = {
+        'umbreon': ['umbreon', 'umbreoon', 'umbrion'],
+        'espeon': ['espion', 'espon'],
+        'glaceon': ['glacoen', 'glacion'],
+        'leafeon': ['leafon', 'leafion'],
+        'sylveon': ['sylvion', 'sylvon'],
+        'vaporeon': ['vapereon', 'vaporion'],
+        'flareon': ['flarion', 'flaroen'],
+        'jolteon': ['joltion', 'joltoen'],
+        'charizard': ['charizad', 'charizrd', 'charzard'],
+        'pikachu': ['pikchu', 'pikacu'],
+        'rayquaza': ['rayquza', 'raquaza'],
+        'mewtwo': ['mewto', 'mewtoo'],
+        'giratina': ['giritina', 'garatina'],
+        'dragonite': ['dragonight', 'dragonit'],
+        'gengar': ['genger', 'gangar'],
+        'lucario': ['lucario', 'lucarion'],
+        'gardevoir': ['gardevior', 'gardvoir']
+    }
+    
+    query_lower = query.lower()
+    for correct, mistakes in misspelling_map.items():
+        if correct in query_lower:
+            return query.lower().replace(correct, mistakes[0])
+    return None
 
 def main():
     try:
@@ -194,6 +283,15 @@ def main():
         search_runs = [("BIN", search_ebay(token, query, max_price, False)), 
                        ("AUCTION", search_ebay(token, query, max_price, True))]
         
+        # BONUS: Misspelling Search for the first card in the chunk (to keep API usage balanced)
+        if card_chunk:
+            primary_card = card_chunk[0]
+            misspelled_name = generate_misspellings(primary_card['name'].split()[0])
+            if misspelled_name:
+                m_query = f"{misspelled_name} {primary_card['cardNumber']} PSA"
+                print(f"  + Bonus Misspelling: {m_query}")
+                search_runs.append(("BIN [MISSPELLING]", search_ebay(token, m_query, max_price, False)))
+
         for l_type, items in search_runs:
             for item in items:
                 item_id = item.get('itemId')
@@ -206,8 +304,16 @@ def main():
                 price = float(item.get('price', {}).get('value', 0))
                 watch_count = item.get('watchCount', 0)
                 
-                # Filters
+                # Reputation Filter (Safety Shield): Standard for all investment-grade slabs
                 if watch_count > 5 or price < 50 or is_bundle_listing(title): continue
+                
+                seller_feedback = item.get('seller',{}).get('feedbackPercentage', 0)
+                seller_score = item.get('seller',{}).get('feedbackScore', 0)
+                
+                # Auto-skip low-rep sellers to avoid scams
+                if float(seller_feedback) < 98.0 or int(seller_score) < 50:
+                    continue
+
                 if any(kw in title.lower() for kw in EXCLUDE_KEYWORDS): continue
 
                 shipping = float(item.get('shippingOptions', [{}])[0].get('shippingCost', {}).get('value', 0)) if item.get('shippingOptions') else 0
