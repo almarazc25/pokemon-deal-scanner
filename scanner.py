@@ -23,7 +23,10 @@ EXCLUDE_KEYWORDS = [
     "display", "stand", "holder", "sleeve", "toploader", "magnet", "sticker", 
     "poster", "plush", "figure", "toy", "mini slab", "novelty", "ornament", 
     "charm", "mystery", "pack", "box break", "digital", "code", "deck", "proxy",
-    "reverse holo", "reverse-holo", "rev holo", "non-holo", "non holo", "rh", "no holo"
+    "reverse holo", "reverse-holo", "rev holo", "non-holo", "non holo", "rh", "no holo",
+    "japanese", "jap", "jp", "korean", "korea", "kr", "chinese", "china", "cn", 
+    "german", "deutsch", "de", "french", "fr", "francais", "spanish", "espanol", "es",
+    "italian", "italiano", "it", "portuguese", "portugues", "pt", "russian", "russian", "ru"
 ]
 
 def update_market_prices():
