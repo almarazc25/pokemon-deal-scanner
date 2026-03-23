@@ -9158,5 +9158,65 @@
     "discount": 95,
     "desirability": 6,
     "link": "https://www.ebay.com/itm/377055655031?_skw=%284%2C2%2C15%2C10%2C1%29+%22Base+Set%22+PSA&hash=item57ca44b477:g:l28AAeSwqJ9pwHX-"
+  },
+  {
+    "timestamp": "2026-03-23T00:25:39.988096+00:00",
+    "card": "Crystal Crobat",
+    "grade": "PSA 8",
+    "price": 349.99,
+    "market": 9000,
+    "discount": 96,
+    "desirability": 5,
+    "link": "https://www.ebay.com/itm/377055759850?_skw=%28146%2C149%2C145%2C147%2C148%29+%22Skyridge%22+PSA&hash=item57ca464dea:g:9XwAAeSwD7RpwIWU"
+  },
+  {
+    "timestamp": "2026-03-23T00:25:53.699718+00:00",
+    "card": "Gardevoir ex SIR SIR/IR",
+    "grade": "PSA 8",
+    "price": 125.0,
+    "market": 350,
+    "discount": 64,
+    "desirability": 5,
+    "link": "https://www.ebay.com/itm/358363418057?_skw=%28232%2C233%2C234%2C237%2C131%29+%22Paldean+Fates%22+PSA&hash=item53701fcdc9:g:SGUAAeSwK9RpwIP~"
+  },
+  {
+    "timestamp": "2026-03-23T00:25:53.850973+00:00",
+    "card": "Charizard ex SIR SIR/IR",
+    "grade": "PSA 9",
+    "price": 295.0,
+    "market": 400,
+    "discount": 26,
+    "desirability": 5,
+    "link": "https://www.ebay.com/itm/377055727639?_skw=%28232%2C233%2C234%2C237%2C131%29+%22Paldean+Fates%22+PSA&hash=item57ca45d017:g:J04AAeSwQ6lpwILg"
+  },
+  {
+    "timestamp": "2026-03-23T00:25:56.172895+00:00",
+    "card": "Eevee IR SIR/IR",
+    "grade": "PSA 9",
+    "price": 74.99,
+    "market": 100,
+    "discount": 25,
+    "desirability": 5,
+    "link": "https://www.ebay.com/itm/257420234740?_skw=%28214%2C217%2C220%2C188%29+%22Twilight+Masquerade%22+PSA&hash=item3bef710ff4:g:-MEAAeSwhCRpwH42"
+  },
+  {
+    "timestamp": "2026-03-23T00:25:56.331832+00:00",
+    "card": "Eevee IR SIR/IR",
+    "grade": "PSA 9",
+    "price": 76.45,
+    "market": 100,
+    "discount": 23,
+    "desirability": 4,
+    "link": "https://www.ebay.com/itm/306837583109?_skw=%28214%2C217%2C220%2C188%29+%22Twilight+Masquerade%22+PSA&hash=item4770f1f505:g:zPkAAeSwCI1pwH3F"
+  },
+  {
+    "timestamp": "2026-03-23T00:26:00.220235+00:00",
+    "card": "Meganium Holo",
+    "grade": "PSA 10",
+    "price": 825.0,
+    "market": 2500,
+    "discount": 67,
+    "desirability": 6,
+    "link": "https://www.ebay.com/itm/327063200250?_skw=%2810%2C11%2C1%2C2%2C3%29+%22Neo+Genesis%22+PSA&hash=item4c267c61fa:g:72oAAeSwCexpwH~s"
   }
 ]
