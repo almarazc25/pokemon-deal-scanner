@@ -246,19 +246,30 @@ def main():
                 for c in chunk: batch_queries.append(([c], f"{c['cardNumber']} \"{set_name}\" PSA"))
             else: batch_queries.append((chunk, query))
 
-    # ROTATION: 4 groups (every 15 min)
-    # 500 cards / 5 per batch = 100 batches. 
-    # 100 / 4 groups = 25 batches per scan.
-    # 25 batches * 2 calls = 50 calls per scan.
-    # 50 calls * 96 scans = 4,800 calls (96% DAILY USAGE - PERFECT MAX)
+    # ROTATION: Perfectly split whatever is in the watchlist into 4 groups (every 15 min)
     current_minute = datetime.now(timezone.utc).minute
     group_idx = current_minute // 15
-    chunk_size = 25 
-    start = group_idx * chunk_size
-    end = min(len(batch_queries), (group_idx + 1) * chunk_size)
+    
+    total_batches = len(batch_queries)
+    # Ensure every group has at least 1 batch if possible
+    batches_per_group = max(1, total_batches // 4)
+    
+    start = group_idx * batches_per_group
+    # For the last group, take everything remaining to ensure no cards are missed
+    if group_idx == 3:
+        end = total_batches
+    else:
+        end = min(total_batches, (group_idx + 1) * batches_per_group)
+        
     active_queries = batch_queries[start:end]
 
-    print(f"🎯 Scanning GROUP {group_idx+1} ({len(active_queries)} Batches / ~{len(active_queries)*5} Cards)")
+    # If the group calculation results in no queries (can happen with very small lists), 
+    # just default to scanning everything.
+    if not active_queries and total_batches > 0:
+        active_queries = batch_queries
+        print("⚠️ Small watchlist detected: Scanning entire list instead of rotating.")
+    else:
+        print(f"🎯 Scanning GROUP {group_idx+1} ({len(active_queries)} Batches / ~{len(active_queries)*5} Cards)")
     print(f"📊 Projected Daily API Usage: {len(active_queries) * 2 * 96} calls ({(len(active_queries) * 2 * 96 / 5000)*100:.1f}%)")
 
     if os.path.exists(SEEN_FILE):
