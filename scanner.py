@@ -308,5 +308,11 @@ def main():
     if new_deals:
         with open(SEEN_FILE, 'w') as f: json.dump(list(seen_ids), f, indent=2)
 
-if __name__ == "__main__":
-    main()
+    # HEARTBEAT: Always update a timestamp file so the user can see the scanner is alive
+    try:
+        with open('heartbeat.txt', 'w') as f:
+            f.write(f"Last Scan: {datetime.now(timezone.utc).isoformat()}")
+    except:
+        pass
+
+    print("Scan complete.")
