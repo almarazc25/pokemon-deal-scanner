@@ -292,13 +292,14 @@ def main():
                     discount = int(((market - total_cost) / market) * 100) if market > 0 else 0
                     profit = market - total_cost - (market * 0.13) - 5
                     
-                    msg = (f"Grade: PSA {grade} | Price: ${total_cost:.2f}\n"
+                    msg = (f"Card: #{card.get('cardNumber')} | Grade: PSA {grade}\n"
+                           f"Price: ${total_cost:.2f}\n"
                            f"Market: ${market} ({discount}% OFF)\n"
                            f"💵 Est. Net Profit: ${profit:.2f}\n"
                            f"📊 {calculate_strategy(card.get('set',''), market)}{time_str}\n"
                            f"Seller: {item.get('seller',{}).get('username')} ({feedback}%)")
                     
-                    send_pushover_priority(f"{'🔥 SNIPE' if is_snipe else '🚨 DEAL'}: {card['name']}", msg, item.get('itemWebUrl'), 2 if is_snipe else 1)
+                    send_pushover_priority(f"{'🔥 SNIPE' if is_snipe else '🚨 DEAL'}: {card['name']} (#{card.get('cardNumber')})", msg, item.get('itemWebUrl'), 2 if is_snipe else 1)
                     seen_ids.add(item_id)
                     new_deals = True
                     log_deal(card['name'], f"PSA {grade}", total_cost, market, discount, 10, item.get('itemWebUrl'))
