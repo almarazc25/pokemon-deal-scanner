@@ -9448,5 +9448,35 @@
     "discount": 96,
     "desirability": 5,
     "link": "https://www.ebay.com/itm/406695704628?_skw=%2899%2C100%29+%22EX+Crystal+Guardians%22+PSA&hash=item5eb0f3f834:g:nRwAAeSw8s5pj3~Y"
+  },
+  {
+    "timestamp": "2026-03-23T05:32:06.234189+00:00",
+    "card": "Lisia's Appeal Full Art",
+    "grade": "PSA 10",
+    "price": 58.99,
+    "market": 80,
+    "discount": 26,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/397748747741?_skw=%28230%2C231%2C232%2C233%2C234%29+%22Surging+Sparks%22+PSA&hash=item5c9bac3ddd:g:66cAAeSwCnlpwHx-"
+  },
+  {
+    "timestamp": "2026-03-23T05:32:12.459968+00:00",
+    "card": "Lisia's Appeal SIR",
+    "grade": "PSA 10",
+    "price": 114.99,
+    "market": 220,
+    "discount": 47,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/127663510327?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item1db9569337:g:JqUAAeSwAKtpgklm"
+  },
+  {
+    "timestamp": "2026-03-23T05:32:12.560817+00:00",
+    "card": "Lisia's Appeal SIR",
+    "grade": "PSA 10",
+    "price": 110.0,
+    "market": 220,
+    "discount": 50,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/147086999277?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item223f117eed:g:sa4AAeSwM7RpZDcM"
   }
 ]
