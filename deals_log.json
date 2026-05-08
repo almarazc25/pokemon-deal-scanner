@@ -168,5 +168,15 @@
     "discount": 26,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/397913429505?_skw=%28203%2C204%2C166%2C167%2C168%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item5ca57d1601:g:nfkAAeSwmvtp-XmU"
+  },
+  {
+    "timestamp": "2026-05-08T08:10:47.157827+00:00",
+    "card": "Psyduck IR",
+    "grade": "PSA 10",
+    "price": 79.99,
+    "market": 150,
+    "discount": 46,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/287318866038?_skw=%28174%2C175%2C176%2C177%2C178%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item42e589f876:g:-NoAAeSwtmpp~VRk"
   }
 ]
