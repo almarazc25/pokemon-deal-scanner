@@ -78,5 +78,15 @@
     "discount": 20,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/800211449783?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemba5051b7b7:g:mI8AAeSwqV1qNhSd"
+  },
+  {
+    "timestamp": "2026-06-28T17:38:38.149400+00:00",
+    "card": "Lisia's Appeal SIR",
+    "grade": "PSA 10",
+    "price": 130.0,
+    "market": 220,
+    "discount": 40,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/377301691428?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item57d8eeec24:g:abwAAeSwYkxqQQ8k"
   }
 ]
