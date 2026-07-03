@@ -88,5 +88,15 @@
     "discount": 40,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/377301691428?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item57d8eeec24:g:abwAAeSwYkxqQQ8k"
+  },
+  {
+    "timestamp": "2026-07-03T10:08:10.184394+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 9",
+    "price": 169.99,
+    "market": 210,
+    "discount": 19,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/117281370841?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item1b4e83b2d9:g:dk4AAeSwxARqRs1J"
   }
 ]
