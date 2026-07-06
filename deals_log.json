@@ -48,5 +48,35 @@
     "discount": 40,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/236914916099?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item37293abb03:g:qasAAeSw~3tqSAAQ"
+  },
+  {
+    "timestamp": "2026-07-06T16:02:33.295290+00:00",
+    "card": "Alakazam ex SIR",
+    "grade": "PSA 9",
+    "price": 74.0,
+    "market": 115,
+    "discount": 35,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/318550218781?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item4a2b12981d:g:e0YAAeSwad1qS88F"
+  },
+  {
+    "timestamp": "2026-07-06T16:02:33.406755+00:00",
+    "card": "Zapdos ex SIR",
+    "grade": "PSA 9",
+    "price": 105.0,
+    "market": 130,
+    "discount": 19,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/800298249513?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemba557e2d29:g:~T8AAeSwIIFpwCWR"
+  },
+  {
+    "timestamp": "2026-07-06T16:02:33.557466+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 10",
+    "price": 650.0,
+    "market": 810,
+    "discount": 19,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/398144705201?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item5cb34612b1:g:0BYAAeSwp21qSzYl"
   }
 ]
