@@ -98,5 +98,15 @@
     "discount": 25,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/168518670747?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item273c7ed99b:g:PzkAAeSwy1BqTA1t"
+  },
+  {
+    "timestamp": "2026-07-08T01:13:11.574966+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 10",
+    "price": 140.0,
+    "market": 810,
+    "discount": 82,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/298488644924?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item457f4f453c:g:Q4MAAeSwKzVqTZHF"
   }
 ]
