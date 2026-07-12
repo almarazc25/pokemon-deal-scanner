@@ -128,5 +128,15 @@
     "discount": 24,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/267724240833?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item3e559bb7c1:g:Rf4AAeSweXxqUYGB"
+  },
+  {
+    "timestamp": "2026-07-12T21:03:07.555282+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 425.0,
+    "market": 530,
+    "discount": 19,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/800329817833?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemba575fdee9:g:FdIAAeSwGjJqU9oY"
   }
 ]
