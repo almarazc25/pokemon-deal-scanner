@@ -488,5 +488,15 @@
     "discount": 19,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/267755190291?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item3e5773f813:g:H80AAeSw1yVqfKyr"
+  },
+  {
+    "timestamp": "2026-08-15T21:01:45.006223+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 410.0,
+    "market": 530,
+    "discount": 22,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/318735486099?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item4a361d8c93:g:OBsAAeSw3DNqgMwm"
   }
 ]
