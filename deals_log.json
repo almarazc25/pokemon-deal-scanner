@@ -378,5 +378,25 @@
     "discount": 22,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/168633335398?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item2743547e66:g:xlcAAeSwzadqipOy"
+  },
+  {
+    "timestamp": "2026-08-23T19:04:57.462983+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 9",
+    "price": 170.55,
+    "market": 210,
+    "discount": 18,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/206511084460?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item30150513ac:g:p0QAAeSwh3NqizOK"
+  },
+  {
+    "timestamp": "2026-08-23T19:04:57.613318+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 10",
+    "price": 650.0,
+    "market": 810,
+    "discount": 19,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/198590108373?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item2e3ce492d5:g:gAUAAeSwwTlqizC0"
   }
 ]
