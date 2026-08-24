@@ -398,5 +398,25 @@
     "discount": 19,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/198590108373?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item2e3ce492d5:g:gAUAAeSwwTlqizC0"
+  },
+  {
+    "timestamp": "2026-08-24T10:12:17.737165+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 400.0,
+    "market": 530,
+    "discount": 24,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/800555241853?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemba64cf917d:g:wwgAAeSwyIRqjBAd"
+  },
+  {
+    "timestamp": "2026-08-24T10:12:17.950013+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 425.0,
+    "market": 530,
+    "discount": 19,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/820040471889?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itembeee389551:g:Q1AAAeSwZuRqi-c3"
   }
 ]
