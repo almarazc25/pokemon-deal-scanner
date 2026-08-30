@@ -1,55 +1,5 @@
 [
   {
-    "timestamp": "2026-07-25T23:14:30.579765+00:00",
-    "card": "Alakazam ex SIR",
-    "grade": "PSA 9",
-    "price": 85.0,
-    "market": 115,
-    "discount": 26,
-    "desirability": 10,
-    "link": "https://www.ebay.com/itm/336708216760?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item4e655fa7b8:g:O3UAAeSwt4FqZTpS"
-  },
-  {
-    "timestamp": "2026-07-26T11:03:26.671426+00:00",
-    "card": "Charizard ex SIR",
-    "grade": "PSA 9",
-    "price": 420.0,
-    "market": 530,
-    "discount": 20,
-    "desirability": 10,
-    "link": "https://www.ebay.com/itm/236963611889?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item372c21c4f1:g:0zoAAeSw0ttqZbTJ"
-  },
-  {
-    "timestamp": "2026-07-28T11:03:39.179794+00:00",
-    "card": "Zapdos ex SIR",
-    "grade": "PSA 9",
-    "price": 104.49,
-    "market": 130,
-    "discount": 19,
-    "desirability": 10,
-    "link": "https://www.ebay.com/itm/327281575679?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item4c338086ff:g:EcIAAeSw-1dqZ4IH"
-  },
-  {
-    "timestamp": "2026-07-30T22:09:43.933091+00:00",
-    "card": "Venusaur ex SIR",
-    "grade": "PSA 10",
-    "price": 445.0,
-    "market": 614,
-    "discount": 27,
-    "desirability": 10,
-    "link": "https://www.ebay.com/itm/188718741061?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item2bf0837645:g:IqEAAeSwLuxqa8OG"
-  },
-  {
-    "timestamp": "2026-07-31T01:06:13.557743+00:00",
-    "card": "Blastoise ex SIR",
-    "grade": "PSA 10",
-    "price": 635.0,
-    "market": 810,
-    "discount": 21,
-    "desirability": 10,
-    "link": "https://www.ebay.com/itm/318656748750?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item4a316c1cce:g:XOMAAeSw6wpqa8-c"
-  },
-  {
     "timestamp": "2026-08-02T06:41:15.075792+00:00",
     "card": "Lisia's Appeal SIR",
     "grade": "PSA 10",
