@@ -468,5 +468,15 @@
     "discount": 23,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/398348248303?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item5cbf67e4ef:g:0cIAAeSw5RdqlX1b"
+  },
+  {
+    "timestamp": "2026-09-02T23:09:38.006990+00:00",
+    "card": "Venusaur ex SIR",
+    "grade": "PSA 9",
+    "price": 129.99,
+    "market": 163,
+    "discount": 20,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/366644620832?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item555db8ee20:g:J0kAAeSw7zhqmE04"
   }
 ]
