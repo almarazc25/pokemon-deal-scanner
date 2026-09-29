@@ -438,5 +438,25 @@
     "discount": 43,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/318920449166?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=item4a4123dc8e:g:0O4AAeSwtixqe054"
+  },
+  {
+    "timestamp": "2026-09-29T09:07:42.356939+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 9",
+    "price": 154.98000000000002,
+    "market": 210,
+    "discount": 26,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/227543727005?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item34faa9bb9d:g:1KYAAeSw9D9quviZ"
+  },
+  {
+    "timestamp": "2026-09-29T09:07:42.571073+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 413.64,
+    "market": 530,
+    "discount": 21,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/820183709294?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itembef6c2366e:g:cvMAAeSwFytqutjw"
   }
 ]
