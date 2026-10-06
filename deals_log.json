@@ -408,5 +408,45 @@
     "discount": 20,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/278431161567?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item40d3ca5cdf:g:~gYAAeSwIG5qwRa-"
+  },
+  {
+    "timestamp": "2026-10-06T03:15:02.185297+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 9",
+    "price": 153.75,
+    "market": 210,
+    "discount": 26,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/960019400962?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemdf859d8902:g:0ZIAAeSw5s1qw9ga"
+  },
+  {
+    "timestamp": "2026-10-06T03:15:02.443354+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 9",
+    "price": 165.0,
+    "market": 210,
+    "discount": 21,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/168764776511?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item274b2a203f:g:jUMAAeSwH1Fqw7Ue"
+  },
+  {
+    "timestamp": "2026-10-06T03:15:02.598988+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 389.99,
+    "market": 530,
+    "discount": 26,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/117447436843?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item1b5869aa2b:g:YKgAAeSwPolqwsR3"
+  },
+  {
+    "timestamp": "2026-10-06T03:15:02.789842+00:00",
+    "card": "Venusaur ex SIR",
+    "grade": "PSA 9",
+    "price": 109.99,
+    "market": 163,
+    "discount": 32,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/137812033500?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item20163cbfdc:g:VoEAAeSwVIxqworj"
   }
 ]
