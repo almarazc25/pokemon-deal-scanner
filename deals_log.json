@@ -438,5 +438,15 @@
     "discount": 31,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/267807401015?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item3e5a90a437:g:HsUAAeSwX4hqxutm"
+  },
+  {
+    "timestamp": "2026-10-13T01:33:45.175342+00:00",
+    "card": "Jasmine's Gaze SIR",
+    "grade": "PSA 10",
+    "price": 79.99,
+    "market": 110,
+    "discount": 27,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/960058410588?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=itemdf87f0c65c:g:RW8AAeSw8KxqzS5D"
   }
 ]
