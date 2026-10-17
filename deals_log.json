@@ -488,5 +488,45 @@
     "discount": 43,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/860050484500?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=itemc83f00ed14:g:0O4AAeSwtixqe054"
+  },
+  {
+    "timestamp": "2026-10-17T04:09:45.971406+00:00",
+    "card": "Galarian Perrserker V Alt Art",
+    "grade": "PSA 10",
+    "price": 91.0,
+    "market": 120,
+    "discount": 24,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/257708611615?_skw=%28184%2C185%2C187%2C188%2C189%29+%22Lost+Origin%22+PSA&hash=item3c00a1581f:g:OOAAAeSweAVqkdAu"
+  },
+  {
+    "timestamp": "2026-10-17T04:09:54.743644+00:00",
+    "card": "Charizard ex SIR",
+    "grade": "PSA 9",
+    "price": 350.0,
+    "market": 530,
+    "discount": 33,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/880023320703?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemcce57a387f:g:9YwAAeSwbiFq0rtN"
+  },
+  {
+    "timestamp": "2026-10-17T04:09:54.990677+00:00",
+    "card": "Venusaur ex SIR",
+    "grade": "PSA 10",
+    "price": 456.99,
+    "market": 614,
+    "discount": 25,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/407295597006?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item5ed4b599ce:g:k-IAAeSwP8Fq0p1g"
+  },
+  {
+    "timestamp": "2026-10-17T04:09:55.143078+00:00",
+    "card": "Venusaur ex SIR",
+    "grade": "PSA 10",
+    "price": 435.0,
+    "market": 614,
+    "discount": 29,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/168797857931?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item274d22e88b:g:V5MAAeSwWsdqxwt4"
   }
 ]
