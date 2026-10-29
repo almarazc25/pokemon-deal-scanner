@@ -488,5 +488,45 @@
     "discount": 44,
     "desirability": 10,
     "link": "https://www.ebay.com/itm/860094515601?_skw=%28245%2C246%2C247%2C248%2C249%29+%22Surging+Sparks%22+PSA&hash=itemc841a0c991:g:0O4AAeSwtixqe054"
+  },
+  {
+    "timestamp": "2026-10-29T22:01:49.238852+00:00",
+    "card": "Blastoise ex SIR",
+    "grade": "PSA 10",
+    "price": 529.0,
+    "market": 810,
+    "discount": 34,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/237151264591?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item3737511f4f:g:u4cAAeSwAD5q44WH"
+  },
+  {
+    "timestamp": "2026-10-29T22:01:49.438000+00:00",
+    "card": "Venusaur ex SIR",
+    "grade": "PSA 9",
+    "price": 105.0,
+    "market": 163,
+    "discount": 35,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/920083708485?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemd639433a45:g:pT4AAeSwVKBq4u2k"
+  },
+  {
+    "timestamp": "2026-10-29T22:01:49.709570+00:00",
+    "card": "Zapdos ex SIR",
+    "grade": "PSA 10",
+    "price": 350.0,
+    "market": 450,
+    "discount": 22,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/840070511735?_skw=%28199%2C198%2C200%2C201%2C202%29+%22Scarlet+%26+Violet+151%22+PSA&hash=itemc3981abc77:g:AMIAAeSwtgxq4ujM"
+  },
+  {
+    "timestamp": "2026-10-29T22:01:52.678040+00:00",
+    "card": "Ivysaur IR",
+    "grade": "PSA 10",
+    "price": 89.0,
+    "market": 320,
+    "discount": 72,
+    "desirability": 10,
+    "link": "https://www.ebay.com/itm/237151143327?_skw=%28203%2C204%2C166%2C167%2C168%29+%22Scarlet+%26+Violet+151%22+PSA&hash=item37374f459f:g:aFIAAeSw6N9q43SS"
   }
 ]
